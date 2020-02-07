@@ -1,7 +1,7 @@
 data "aws_caller_identity" "current" {}
 
 resource "aws_cloudtrail" "snifpolgen" {
-  name                          = "snifpolgen"
+  name                          = var.name
   s3_bucket_name                = aws_s3_bucket.snifpolgen.bucket
   s3_key_prefix                 = ""
   is_multi_region_trail         = false
@@ -38,13 +38,13 @@ data "aws_iam_policy_document" "snifpolgen" {
 }
 
 resource "aws_athena_database" "snifpolgen" {
-  name   = "snifpolgen"
+  name   = var.name
   bucket = aws_s3_bucket.snifpolgen.bucket
 }
 
 resource "aws_athena_named_query" "snifpolgen" {
-  name      = "cloudtrail_logs_create_table"
-  workgroup = "primary"
+  name      = format("%s_cloudtrail_logs_create_table", var.name)
+  workgroup = var.workgroup
   database  = aws_athena_database.snifpolgen.name
   query     = <<EOF
 CREATE EXTERNAL TABLE snifpolgen_logs (
